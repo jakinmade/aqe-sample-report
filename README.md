@@ -13,4 +13,5 @@ Contact: John Akinmade, john@akinmade.co.uk
 
 ## UK charity sample
 
-- [`charity-uk/`](charity-uk/): a UK wildlife charity qualifying the extension of its supporter propensity model to legacy prospects (Kestrel Valley Wildlife Trust and Helen Marsh are fictional), assessed under the AQE charity jurisdiction (rules 2026-05). A CLEARANCE sample for the same charity covers the model already in use.
+- [`charity-uk/`](charity-uk/): a UK wildlife charity qualifying the extension of its supporter propensity model to legacy prospects (Kestrel Valley Wildlife Trust and Helen Marsh are fictional), assessed under the AQE charity jurisdiction (rules 2026-10). A CLEARANCE sample for the same charity covers the model already in use.
+- [`trustee-check-charity-uk/`](trustee-check-charity-uk/): the Trustee Check (board-level AI oversight) for the same fictional charity, rules 2026-10.

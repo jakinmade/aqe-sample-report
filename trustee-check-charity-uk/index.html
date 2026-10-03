@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trustee Check sample report: UK charity board AI oversight</title>
+<meta name="description" content="A sample AQE Trustee Check: a board-level assessment of AI oversight for a UK charity. The organisation named is fictional.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#13293D; --paper:#FFFFFF; --wash:#EEF3F6; --line:#D5DEE4;
+  --muted:#56636D; --verdict:#D9621E; --pass:#1F7A4D; --band:#215E8C;
+  --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#E6EDF2; --paper:#0F1B26; --wash:#172735; --line:#2A3E4F;
+    --muted:#9AAAB6; --verdict:#F08A4B; --pass:#4FBF86; --band:#2E78AE;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#E6EDF2; --paper:#0F1B26; --wash:#172735; --line:#2A3E4F;
+  --muted:#9AAAB6; --verdict:#F08A4B; --pass:#4FBF86; --band:#2E78AE;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.55}
+a{color:var(--band)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--verdict);outline-offset:3px}
+.sample{background:var(--band);color:#fff;font-size:14px;padding:10px 20px;text-align:center}
+.sample strong{font-weight:700}
+.wrap{max-width:880px;margin:0 auto;padding:0 24px}
+header.top{padding:28px 0 8px;display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+.brand{font-weight:800;font-size:22px;letter-spacing:.02em}
+.brand span{font-weight:500;color:var(--muted);font-size:15px;margin-left:8px;letter-spacing:0}
+.lede{color:var(--muted);max-width:62ch;margin:6px 0 0}
+
+/* Hero: the verdict itself */
+.verdict{margin:36px 0 12px;display:grid;grid-template-columns:1.25fr 1fr;gap:36px;align-items:center}
+.verdict h1{font-family:var(--serif);font-weight:600;font-size:clamp(40px,7vw,64px);line-height:1.02;margin:0;color:var(--verdict)}
+.verdict .scope{margin:14px 0 0;color:var(--muted);max-width:44ch}
+.ref{font-size:14px;color:var(--muted);margin-top:18px}
+.quad{width:100%;max-width:320px;justify-self:end}
+.quad text{font-family:var(--sans)}
+.meters{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:28px 0 8px}
+.meter{padding:18px 0}
+.meter+.meter{border-left:1px solid var(--line);padding-left:24px}
+.meter .n{font-size:40px;font-weight:700;line-height:1}
+.meter .n small{font-size:17px;font-weight:500;color:var(--muted)}
+.meter p{margin:6px 0 0;color:var(--muted);font-size:15px;max-width:34ch}
+.owner{font-size:15px;margin:14px 0 0}
+
+section{margin:56px 0}
+h2{font-family:var(--serif);font-weight:600;font-size:28px;line-height:1.2;margin:0 0 6px}
+.sub{color:var(--muted);margin:0 0 20px;max-width:64ch}
+
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:16px}
+th,td{text-align:left;padding:11px 12px 11px 0;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:14px}
+td.ans{font-weight:600;white-space:nowrap}
+
+/* Areas: score against the pass line */
+.area{display:grid;grid-template-columns:200px 1fr 64px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.area .name{font-weight:600}
+.bar{position:relative;height:12px;background:var(--wash);border-radius:2px}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--verdict);border-radius:2px}
+.bar b{position:absolute;top:-6px;bottom:-6px;left:70%;width:2px;background:var(--ink)}
+.area .score{font-variant-numeric:tabular-nums;text-align:right;font-weight:600}
+.legend{font-size:14px;color:var(--muted);margin-top:10px}
+
+.status{font-weight:600;font-size:14px;white-space:nowrap}
+.status.review{color:var(--verdict)}
+.status.un{color:var(--muted)}
+
+.repro{background:var(--wash);padding:24px;border-left:4px solid var(--band)}
+.repro code{font-size:15px;word-break:break-all}
+.repro p{margin:0 0 10px}
+.repro p:last-child{margin:0}
+
+.docs{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.doc{display:block;text-decoration:none;color:var(--ink);border:1px solid var(--line);padding:22px;border-top:4px solid var(--ink)}
+.doc:hover{border-color:var(--band);border-top-color:var(--band)}
+.doc h3{margin:0 0 6px;font-size:19px}
+.doc p{margin:0 0 12px;color:var(--muted);font-size:15px}
+.doc span{font-weight:600;color:var(--band);font-size:15px}
+
+footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--muted);font-size:15px}
+footer p{margin:0 0 8px}
+
+@media (max-width:720px){
+  body{font-size:16px}
+  .verdict{grid-template-columns:1fr;gap:20px}
+  .quad{justify-self:start;max-width:260px}
+  .meters{grid-template-columns:1fr}
+  .meter+.meter{border-left:0;border-top:1px solid var(--line);padding-left:0}
+  .area{grid-template-columns:1fr 52px}
+  .area .name{grid-column:1 / -1}
+  .docs{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="sample" role="note"><strong>Sample report.</strong> Kestrel Valley Wildlife Trust is fictional. No real organisation or person has been assessed.</div>
+
+<div class="wrap">
+<header class="top">
+  <div class="brand">AQE Trustee Check<span>Board-level AI oversight</span></div>
+  <a href="https://aqediagnostic.com">aqediagnostic.com</a>
+</header>
+<p class="lede">This is what a charity board receives after the Trustee Check: a short, plain-English view of whether trustees can show they are overseeing the charity's use of AI. It asks 20 questions across six trustee duties, drawn from the Charity Governance Code 2025, Charity Commission guidance (CC3, CC26, CC20), ICO guidance on AI and data protection, and the Charity Excellence AI Governance and Ethics Framework. The example is the same fictional wildlife charity used in the <a href="../charity-uk/">AQE sample</a> and the <a href="https://jakinmade.github.io/clearance-sample-report/charity-uk/">CLEARANCE sample</a>: staff have put sensible controls around its AI fundraising model, but the board has not yet taken ownership of AI.</p>
+
+<div class="verdict" style="grid-template-columns:1fr">
+  <div>
+    <h1>Oversight required</h1>
+    <p class="scope" style="max-width:62ch">9 of 38 points (24%). Several trustee duties show real gaps: no trustee is written down as owning AI, AI is not on the risk register, the board has not discussed AI risk, and nothing is scheduled for review. Data protection is partly in place, including signed agreements with the CRM supplier.</p>
+    <p class="ref">Reference TC-890A28A3 · Trustee Check rules 2026-10</p>
+  </div>
+</div>
+
+<section>
+  <h2>The six trustee duties</h2>
+  <p class="sub">Each answer scores 2 if evidenced, 1 if informal and 0 if missing or not known. A duty is strong at 75% or above, and developing from 40%. Only data protection reaches developing.</p>
+  <div class="area"><div class="name">Named accountability: who owns AI?</div><div class="bar" aria-hidden="true"><i style="width:12.5%"></i><b style="left:75%"></b></div><div class="score">12%</div></div>
+  <div class="area"><div class="name">Transparency and disclosure: can we explain our AI use?</div><div class="bar" aria-hidden="true"><i style="width:16.7%"></i><b style="left:75%"></b></div><div class="score">17%</div></div>
+  <div class="area"><div class="name">Data protection and safety: do we know what data it touches?</div><div class="bar" aria-hidden="true"><i style="width:50.0%"></i><b style="left:75%"></b></div><div class="score">50%</div></div>
+  <div class="area"><div class="name">Fairness and safeguarding: are vulnerable beneficiaries protected?</div><div class="bar" aria-hidden="true"><i style="width:25.0%"></i><b style="left:75%"></b></div><div class="score">25%</div></div>
+  <div class="area"><div class="name">Redress and human oversight: can someone challenge an AI decision?</div><div class="bar" aria-hidden="true"><i style="width:33.3%"></i><b style="left:75%"></b></div><div class="score">33%</div></div>
+  <div class="area"><div class="name">Ongoing review: do we keep this under review?</div><div class="bar" aria-hidden="true"><i style="width:0.0%"></i><b style="left:75%"></b></div><div class="score">0%</div></div>
+  <p class="legend">The dark line on each bar marks the 75% level for a strong duty.</p>
+</section>
+
+<section>
+  <h2>What the board is asked to do first</h2>
+  <div class="scroll">
+  <table>
+    <thead><tr><th scope="col">Action</th><th scope="col">Grounded in</th></tr></thead>
+    <tbody>
+      <tr><td>Write down which trustee, or small group, is in charge of AI.</td><td>Charity Governance Code 2025</td></tr>
+      <tr><td>Formally discuss AI risks at board level, record the outcome, and add AI as its own item on the risk register.</td><td>Charity Commission CC26 (Charities and risk management)</td></tr>
+      <tr><td>Tell donors and beneficiaries when AI is involved in something that affects them.</td><td>Charity Excellence AI Governance and Ethics Framework</td></tr>
+      <tr><td>Set a confirmed review date for the AI policy and risk assessment.</td><td>Charity Governance Code 2025</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2>Anyone can check the result</h2>
+  <div class="repro">
+    <p>The Trustee Check uses fixed, version-controlled rules. There is no AI model and no assessor judgement in the result, so the same answers always give the same verdict and the same reference.</p>
+    <p>Every question in the report shows the source it is grounded in, so a trustee can check it against the guidance rather than take the report's word for it.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Read the full sample</h2>
+  <p class="sub">The report is marked as a sample on every page.</p>
+  <div class="docs" style="grid-template-columns:1fr">
+    <a class="doc" href="Trustee-Check-sample-report-charity-uk.pdf" download>
+      <h3>Trustee AI Oversight Assessment</h3>
+      <p>The board summary, the six duties, every answer with its source, and the actions for each gap.</p>
+      <span>Download PDF</span>
+    </a>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>AQE is built by John Akinmade. <a href="mailto:john@akinmade.co.uk">john@akinmade.co.uk</a></p>
+    <p>This sample uses a fictional organisation. It does not constitute legal or regulatory advice.</p>
+  </div>
+</footer>
+</body>
+</html>

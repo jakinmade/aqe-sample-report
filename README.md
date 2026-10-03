@@ -10,3 +10,7 @@ Excel Invests and Jason Butler are fictional. No real organisation or person is 
 AQE uses fixed, version-controlled rules with no AI model in the decision, so the same inputs always produce the same verdict.
 
 Contact: John Akinmade, john@akinmade.co.uk
+
+## UK charity sample
+
+- [`charity-uk/`](charity-uk/): a UK wildlife charity qualifying the extension of its supporter propensity model to legacy prospects (Kestrel Valley Wildlife Trust and Helen Marsh are fictional), assessed under the AQE charity jurisdiction (rules 2026-05). A CLEARANCE sample for the same charity covers the model already in use.

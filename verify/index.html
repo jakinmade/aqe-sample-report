@@ -16,9 +16,9 @@ li{margin:4px 0}code{font-size:12px;word-break:break-all}</style></head><body><m
 <div id="res"></div></div>
 <div class="card"><b>The receipt itself</b><p class="m" style="margin-bottom:8px">Edit anything below, then check the seal again.</p><textarea id="t" spellcheck="false"></textarea>
 <p class="m" style="margin-top:10px;font-size:14px">Checked against this public key, published separately from the receipt: <code>ea7e540079b4b5cc2cc27b439341dbc8d6acc906d7c5fd5e13b6eeedf36904e7</code><br>Sample key for demonstration. Live reports are signed with the production key. Algorithm: Ed25519.</p></div>
-<div class="card" id="real"><b>Check a real report</b><p class="m" style="margin-bottom:10px">Got a report from CLEARANCE? Choose the machine-readable JSON file you downloaded with it. It's checked here in your browser against the published key below, and nothing is uploaded anywhere.</p>
+<div class="card" id="real"><b>Check a real report</b><p class="m" style="margin-bottom:10px">Got a report from AQE or CLEARANCE? Choose the machine-readable JSON file you downloaded with it. It's checked here in your browser against the published key below, and nothing is uploaded anywhere.</p>
 <input type="file" id="rf" accept=".json,application/json"><div id="rres" style="font-weight:600;margin-top:12px"></div><div id="rdet" class="m" style="font-size:14px;margin-top:6px"></div>
-<p class="m" style="margin-top:12px;font-size:14px">Published CLEARANCE key (<code>clearance-2026-08</code>, Ed25519): <code>KsutmThlMfoplLwvG9ACGv2cLtvVEQtoXsL7yzQACqI=</code><br>Also served live at <a href="https://app.clearance-diagnostic.com/?publickey=1" style="color:inherit">app.clearance-diagnostic.com/?publickey=1</a>.</p></div>
+<p class="m" style="margin-top:12px;font-size:14px">Published CLEARANCE key (<code>clearance-2026-08</code>, Ed25519): <code>KsutmThlMfoplLwvG9ACGv2cLtvVEQtoXsL7yzQACqI=</code><br><br>Published AQE key (<code>aqe-2026-08</code>, Ed25519): <code>ADPoKwMt9S65PeDDkKDLn0u3Q374CNzwH8x6IEx9JGI=</code><br>Both are also served live at <a href="https://app.clearance-diagnostic.com/?publickey=1" style="color:inherit">app.clearance-diagnostic.com/?publickey=1</a> and <a href="https://app.aqediagnostic.com/?publickey=1" style="color:inherit">app.aqediagnostic.com/?publickey=1</a>.</p></div>
 <p class="m" style="font-size:14px">AQE and CLEARANCE use fixed rules, not AI. The same answers always give the same result. john@akinmade.co.uk</p>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tweetnacl/1.0.3/nacl-fast.min.js"></script>
@@ -39,7 +39,7 @@ load(ORIG);
 /* Real-report check. Rebuilds Python's json.dumps(sort_keys=True, separators=(",",":"), ensure_ascii=True)
    exactly, keeping number tokens as written so floats match byte for byte. */
 (function(){
-const KEYS={"clearance-2026-08":"KsutmThlMfoplLwvG9ACGv2cLtvVEQtoXsL7yzQACqI="};
+const KEYS={"clearance-2026-08":"KsutmThlMfoplLwvG9ACGv2cLtvVEQtoXsL7yzQACqI=","aqe-2026-08":"ADPoKwMt9S65PeDDkKDLn0u3Q374CNzwH8x6IEx9JGI="};
 class N{constructor(r){this.r=r}}class L{constructor(r){this.r=r}}
 function parse(s){let i=0;const ws=()=>{while(/\s/.test(s[i]))i++};
  function val(){ws();const c=s[i];
@@ -63,7 +63,7 @@ function verify(text){let doc;try{doc=parse(text)}catch(e){return{ok:false,msg:"
  const kid=strv(b.key_id),key=KEYS[kid];if(!key)return{ok:false,msg:"This report was sealed with key “"+kid+"”, which isn't published here yet."};
  const body={};Object.keys(b).forEach(k=>{if(k!=="signature")body[k]=b[k]});
  let ok=false;try{ok=nacl.sign.detached.verify(new TextEncoder().encode(canon(body)),hex(b.signature),b64(key))}catch(e){}
- return{ok,b,msg:ok?"✓ Seal intact. This report hasn't changed since CLEARANCE issued it.":"✗ Seal broken. This report has been changed since it was issued, or it wasn't issued by CLEARANCE."}}
+ return{ok,b,msg:ok?"✓ Seal intact. This report hasn't changed since it was issued.":"✗ Seal broken. This report has been changed since it was issued, or it wasn't issued by AQE or CLEARANCE."}}
 if(typeof window!=="undefined"&&document.getElementById("rf"))document.getElementById("rf").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;const r=verify(await f.text());
  document.getElementById("rres").innerHTML='<span class="'+(r.ok?"ok":"bad")+'">'+r.msg+"</span>";
  document.getElementById("rdet").textContent=r.b?["Product: "+strv(r.b.product),"Reference: "+strv(r.b.engagement_ref),"Issued: "+strv(r.b.timestamp),"Rules version: "+strv(r.b.ruleset_version)].join("  ·  "):""});

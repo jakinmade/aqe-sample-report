@@ -16,6 +16,9 @@ li{margin:4px 0}code{font-size:12px;word-break:break-all}</style></head><body><m
 <div id="res"></div></div>
 <div class="card"><b>The receipt itself</b><p class="m" style="margin-bottom:8px">Edit anything below, then check the seal again.</p><textarea id="t" spellcheck="false"></textarea>
 <p class="m" style="margin-top:10px;font-size:14px">Checked against this public key, published separately from the receipt: <code>ea7e540079b4b5cc2cc27b439341dbc8d6acc906d7c5fd5e13b6eeedf36904e7</code><br>Sample key for demonstration. Live reports are signed with the production key. Algorithm: Ed25519.</p></div>
+<div class="card" id="real"><b>Check a real report</b><p class="m" style="margin-bottom:10px">Got a report from CLEARANCE? Choose the machine-readable JSON file you downloaded with it. It's checked here in your browser against the published key below, and nothing is uploaded anywhere.</p>
+<input type="file" id="rf" accept=".json,application/json"><div id="rres" style="font-weight:600;margin-top:12px"></div><div id="rdet" class="m" style="font-size:14px;margin-top:6px"></div>
+<p class="m" style="margin-top:12px;font-size:14px">Published CLEARANCE key (<code>clearance-2026-08</code>, Ed25519): <code>KsutmThlMfoplLwvG9ACGv2cLtvVEQtoXsL7yzQACqI=</code><br>Also served live at <a href="https://app.clearance-diagnostic.com/?publickey=1" style="color:inherit">app.clearance-diagnostic.com/?publickey=1</a>.</p></div>
 <p class="m" style="font-size:14px">AQE and CLEARANCE use fixed rules, not AI. The same answers always give the same result. john@akinmade.co.uk</p>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tweetnacl/1.0.3/nacl-fast.min.js"></script>
@@ -32,4 +35,38 @@ $("res").innerHTML=ok?'<span class="ok">&#10003; Seal intact. Nothing has change
 $("chk").onclick=check;$("rst").onclick=()=>load(ORIG);
 $("tam").onclick=()=>{const r=JSON.parse($("t").value);r.payload.findings[0].severity="LOW";$("t").value=JSON.stringify(r,null,2);check();};
 load(ORIG);
+</script><script>
+/* Real-report check. Rebuilds Python's json.dumps(sort_keys=True, separators=(",",":"), ensure_ascii=True)
+   exactly, keeping number tokens as written so floats match byte for byte. */
+(function(){
+const KEYS={"clearance-2026-08":"KsutmThlMfoplLwvG9ACGv2cLtvVEQtoXsL7yzQACqI="};
+class N{constructor(r){this.r=r}}class L{constructor(r){this.r=r}}
+function parse(s){let i=0;const ws=()=>{while(/\s/.test(s[i]))i++};
+ function val(){ws();const c=s[i];
+  if(c==="{"){i++;const o={};ws();if(s[i]==="}"){i++;return o}for(;;){ws();const k=str();ws();if(s[i++]!==":")throw 0;o[k]=val();ws();if(s[i]===","){i++;continue}if(s[i++]==="}")return o;throw 0}}
+  if(c==="["){i++;const a=[];ws();if(s[i]==="]"){i++;return a}for(;;){a.push(val());ws();if(s[i]===","){i++;continue}if(s[i++]==="]")return a;throw 0}}
+  if(c==='"')return str();
+  for(const w of["true","false","null"])if(s.startsWith(w,i)){i+=w.length;return new L(w)}
+  const m=/^-?\d+(\.\d+)?([eE][+-]?\d+)?/.exec(s.slice(i));if(!m)throw 0;i+=m[0].length;return new N(m[0])}
+ function str(){if(s[i]!=='"')throw 0;let j=i+1,e=false;while(j<s.length){if(e)e=false;else if(s[j]==="\\")e=true;else if(s[j]==='"')break;j++}const r=JSON.parse(s.slice(i,j+1));i=j+1;return r}
+ const v=val();ws();if(i!==s.length)throw 0;return v}
+const qs=x=>JSON.stringify(x).replace(/[\u007f-￿]/g,c=>"\\u"+c.charCodeAt(0).toString(16).padStart(4,"0"));
+function canon(v){if(typeof v==="string")return qs(v);if(Array.isArray(v))return"["+v.map(canon).join(",")+"]";
+ if(v instanceof N||v instanceof L)return v.r;
+ return"{"+Object.keys(v).sort().map(k=>qs(k)+":"+canon(v[k])).join(",")+"}"}
+const hex=h=>new Uint8Array(h.match(/../g).map(x=>parseInt(x,16)));
+const b64=s=>Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")),c=>c.charCodeAt(0));
+const strv=v=>typeof v==="string"?v:"";
+function verify(text){let doc;try{doc=parse(text)}catch(e){return{ok:false,msg:"This file isn't valid JSON."}}
+ const b=doc.assurance_bundle&&typeof doc.assurance_bundle==="object"?doc.assurance_bundle:doc;
+ if(!b||typeof b.signature!=="string")return{ok:false,msg:"No seal found in this file. Use the machine-readable JSON downloaded with the report."};
+ const kid=strv(b.key_id),key=KEYS[kid];if(!key)return{ok:false,msg:"This report was sealed with key “"+kid+"”, which isn't published here yet."};
+ const body={};Object.keys(b).forEach(k=>{if(k!=="signature")body[k]=b[k]});
+ let ok=false;try{ok=nacl.sign.detached.verify(new TextEncoder().encode(canon(body)),hex(b.signature),b64(key))}catch(e){}
+ return{ok,b,msg:ok?"✓ Seal intact. This report hasn't changed since CLEARANCE issued it.":"✗ Seal broken. This report has been changed since it was issued, or it wasn't issued by CLEARANCE."}}
+if(typeof window!=="undefined"&&document.getElementById("rf"))document.getElementById("rf").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;const r=verify(await f.text());
+ document.getElementById("rres").innerHTML='<span class="'+(r.ok?"ok":"bad")+'">'+r.msg+"</span>";
+ document.getElementById("rdet").textContent=r.b?["Product: "+strv(r.b.product),"Reference: "+strv(r.b.engagement_ref),"Issued: "+strv(r.b.timestamp),"Rules version: "+strv(r.b.ruleset_version)].join("  ·  "):""});
+if(typeof module!=="undefined")module.exports={verify,KEYS};
+})();
 </script></body></html>
